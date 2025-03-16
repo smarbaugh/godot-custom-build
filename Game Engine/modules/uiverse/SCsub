@@ -1,0 +1,49 @@
+#!/usr/bin/env python
+
+Import('env')
+
+module_env = env.Clone()
+
+# Add include directories
+module_env.Append(CPPPATH=['#modules/uiverse/include'])
+
+# Source files
+sources = [
+    'src/uiverse_component.cpp',
+]
+
+# Build the module
+module_env.add_source_files(env.modules_sources, sources)
+
+# Register the module
+def register_uiverse_types():
+    from compat import open_text
+    with open_text('modules/uiverse/register_types.h', 'w') as f:
+        f.write('''
+#ifndef UIVERSE_REGISTER_TYPES_H
+#define UIVERSE_REGISTER_TYPES_H
+
+void register_uiverse_types();
+void unregister_uiverse_types();
+
+#endif // UIVERSE_REGISTER_TYPES_H
+''')
+
+    with open_text('modules/uiverse/register_types.cpp', 'w') as f:
+        f.write('''
+#include "register_types.h"
+#include "core/class_db.h"
+#include "uiverse_component.h"
+
+void register_uiverse_types() {
+    ClassDB::register_class<UiverseComponent>();
+}
+
+void unregister_uiverse_types() {
+}
+''')
+
+register_uiverse_types()
+
+# Add the registration files to the build
+module_env.add_source_files(env.modules_sources, ['register_types.cpp']) 
